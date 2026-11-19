@@ -1288,13 +1288,22 @@ canvas.sol-gpop{animation:solGPop .65s cubic-bezier(.3,1.4,.5,1)}
   }
   /* ---------- اختيار الموديل حسب البطل/الدور ---------- */
   var BYNAME = { "صقر": "ranger", "نبراس": "monk", "عاصف": "rogue", "هلال": "rogue", "مارد": "monk" };
-  var BYROLE = { tank: ["warrior"], support: ["cleric"], control: ["wizard"], dps: ["rogue", "monk", "ranger"] };
+  /* اختيار طراز هيكلي متنوع لكل بطل/وحش مع الحفاظ على وزن الدور القتالي.
+     كل اسم يحصل على بصمة ثابتة؛ لذلك لا يتبدل المجسم بين الجولات أو عند إعادة التحميل. */
+  var BYROLE = {
+    tank: ["warrior", "monk", "warrior", "ranger"],
+    support: ["cleric", "monk", "wizard", "cleric"],
+    control: ["wizard", "ranger", "wizard", "rogue"],
+    dps: ["rogue", "monk", "ranger", "warrior", "wizard", "cleric"]
+  };
   function hash(s) { var h = 7; s = s || "x"; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
   function classFor(name, role, boss) {
     name = name || ""; role = role || "dps";
-    if (boss) return "warrior";
+    if (boss) return (hash(name) % 3 === 0) ? "warrior" : (hash(name) % 3 === 1 ? "monk" : "rogue");
+    /* الأسماء المرتبطة صراحةً بطراز تحتفظ بهويتها؛ بقية الشخصيات تتوزع على الطرز الستة. */
     for (var k in BYNAME) if (name.indexOf(k) === 0) return BYNAME[k];
-    var l = BYROLE[role] || BYROLE.dps; return l[hash(name) % l.length];
+    var l = BYROLE[role] || BYROLE.dps;
+    return l[hash(name) % l.length];
   }
   var FCOL = { guardians: [196, 106, 58], plains: [138, 168, 72], oasis: [47, 184, 166], shadow: [123, 104, 181], light: [232, 199, 106], abyss: [179, 74, 104] };
   function tintFor(fac, enemy) {
